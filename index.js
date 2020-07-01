@@ -97,18 +97,6 @@ async function checkChangePlates() {
   }
 }
 
-async function checkTechniqueBar() {
-  const htmlUrl = 'https://www.roguefitness.com/rogue-t-15-lb-technique-bar';
-  const $ = await fetchHTML(htmlUrl);
-
-  const stockString = $('.add-to-cart button').text().replace(/[^a-z0-9]/gi, '');
-  if (stockString === 'NotifyMe') {
-    return;
-  }
-
-  sendNotification('Technique Bar In Stock', htmlUrl);
-}
-
 async function checkIMDumbbells() {
   const htmlUrl = 'https://www.ironmaster.com/products/quick-lock-dumbbell-system-45-lb-set/';
   const $ = await fetchHTML(htmlUrl);
@@ -125,6 +113,5 @@ async function checkIMDumbbells() {
 exports.handler = function() {
   checkBumperPlates();
   checkChangePlates();
-  checkTechniqueBar();
   checkIMDumbbells();
 };
