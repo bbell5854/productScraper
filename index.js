@@ -22,7 +22,7 @@ async function checkBumperPlates() {
   const $ = await fetchHTML(htmlUrl);
 
   const desiredWeights = {
-    '10': true,
+    '10': false,
     '15': false,
     '25': false,
     '35': false,
@@ -110,8 +110,22 @@ async function checkIMDumbbells() {
   sendNotification('Dumbbells In Stock', htmlUrl);
 }
 
+async function checkIMDumbbells75() {
+  const htmlUrl = 'https://www.ironmaster.com/products/quick-lock-adjustable-dumbbells-75/';
+  const $ = await fetchHTML(htmlUrl);
+
+  const stockString = $('.product-stock .stock').text();
+
+  if (stockString === 'OUT OF STOCK') {
+    return;
+  }
+
+  sendNotification('Dumbbells In Stock', htmlUrl);
+}
+
+
 exports.handler = function() {
-  checkBumperPlates();
   checkChangePlates();
   checkIMDumbbells();
+  checkIMDumbbells75();
 };
