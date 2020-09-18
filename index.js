@@ -17,53 +17,12 @@ function sendNotification(message, url) {
   axios.post(pushoverUrl, payload);
 }
 
-async function checkBumperPlates() {
-  const htmlUrl = 'https://www.repfitness.com/bars-plates/olympic-plates/rep-color-bumper-plates';
-  const $ = await fetchHTML(htmlUrl);
-
-  const desiredWeights = {
-    '10': false,
-    '15': false,
-    '25': false,
-    '35': false,
-    '45': false,
-    '55': false,
-  };
-
-  let notify = false;
-
-  const stockString = $('.product-info').children().first().children('span').text();
-  if (stockString === 'Out of stock') {
-    return;
-  }
-
-  const ordersDisabled = $('.add-to-box h1').text();
-  if (ordersDisabled === 'Orders Temporarily Disabled') {
-    return;
-  }
-
-  const rows = $('#super-product-table tbody tr');
-  rows.each((_, elem) => {
-    const productText = $(elem).children().first().text();
-    const productAvailable = !$(elem).children().last().children('.out-of-stock').length;
-    const weight = productText.match(/\d+/g);
-
-    if (desiredWeights[weight[0]] && productAvailable) {
-      notify = true;
-    }
-  });
-
-  if (notify) {
-    sendNotification('Bumper Plates In Stock', htmlUrl);
-  }
-}
-
 async function checkChangePlates() {
   const htmlUrl = 'https://www.repfitness.com/bars-plates/olympic-plates/rep-lb-change-plates';
   const $ = await fetchHTML(htmlUrl);
 
   const desiredWeights = {
-    '1': true,
+    '1': false,
     '2': false,
     '5': false,
     '10': true
@@ -97,35 +56,6 @@ async function checkChangePlates() {
   }
 }
 
-async function checkIMDumbbells() {
-  const htmlUrl = 'https://www.ironmaster.com/products/quick-lock-dumbbell-system-45-lb-set/';
-  const $ = await fetchHTML(htmlUrl);
-
-  const stockString = $('.product-stock .stock').text();
-
-  if (stockString === 'OUT OF STOCK') {
-    return;
-  }
-
-  sendNotification('Dumbbells In Stock', htmlUrl);
-}
-
-async function checkIMDumbbells75() {
-  const htmlUrl = 'https://www.ironmaster.com/products/quick-lock-adjustable-dumbbells-75/';
-  const $ = await fetchHTML(htmlUrl);
-
-  const stockString = $('.product-stock .stock').text();
-
-  if (stockString === 'OUT OF STOCK') {
-    return;
-  }
-
-  sendNotification('Dumbbells In Stock', htmlUrl);
-}
-
-
 exports.handler = function() {
   checkChangePlates();
-  checkIMDumbbells();
-  checkIMDumbbells75();
 };
