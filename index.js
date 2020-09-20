@@ -17,45 +17,31 @@ function sendNotification(message, url) {
   axios.post(pushoverUrl, payload);
 }
 
-async function checkChangePlates() {
-  const htmlUrl = 'https://www.repfitness.com/bars-plates/olympic-plates/rep-lb-change-plates';
-  const $ = await fetchHTML(htmlUrl);
+function checkEvga3080() {
+  const htmlUrls = [
+    'https://www.evga.com/products/product.aspx?pn=10G-P5-3885-KR',
+    'https://www.evga.com/products/product.aspx?pn=10G-P5-3883-KR',
+  ];
 
-  const desiredWeights = {
-    '1': false,
-    '2': false,
-    '5': false,
-    '10': true
-  };
-
-  let notify = false;
-
-  const stockString = $('.product-info').children().first().children('span').text();
-  if (stockString === 'Out of stock') {
-    return;
-  }
-
-  const ordersDisabled = $('.add-to-box h1').text();
-  if (ordersDisabled === 'Orders Temporarily Disabled') {
-    return;
-  }
-
-  const rows = $('#super-product-table tbody tr');
-  rows.each((_, elem) => {
-    const productText = $(elem).children().first().text();
-    const productAvailable = !$(elem).children().last().children('.out-of-stock').length;
-    const weight = productText.match(/\d+/g);
-
-    if (desiredWeights[weight[0]] && productAvailable) {
-      notify = true;
+  htmlUrls.forEach(async url => {
+    try {
+      const $ = await fetchHTML(url);
+      
+      const outOfStockDiv = $('#LFrame_pnlOutOfStock');
+  
+      if (outOfStockDiv.length > 0) {
+        return
+      }
+  
+      sendNotification('3080 In Stock', url)
+    } catch (error) {
+      console.log(error);
+      // Uncomment this if you want errors pushed to your device with pushover.
+      // sendNotification(`Error scraping products: ${error}`);
     }
   });
-
-  if (notify) {
-    sendNotification('Change Plates In Stock', htmlUrl);
-  }
 }
 
 exports.handler = function() {
-  checkChangePlates();
+  checkEvga3080();
 };
